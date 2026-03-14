@@ -27,7 +27,9 @@ if (process.env.NODE_ENV !== 'production') {
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
 app.use('/api', routes);
 
-// Health check
+// Health check (API scoped)
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+// Keep root health for compatibility
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 // 404 handler
