@@ -7,8 +7,24 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ─── MIDDLEWARES ──────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+// Permite qualquer subdomínio .vercel.app (produção e previews)
+const isAllowedOrigin = (origin) => {
+  if (!origin) return false;
+  if (allowedOrigins.includes(origin)) return true;
+  try {
+    const u = new URL(origin);
+    if (u.hostname === 'localhost') return true;
+    if (u.hostname.endsWith('.vercel.app')) return true;
+  } catch (_) {}
+  return false;
+};
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, cb) => cb(null, isAllowedOrigin(origin) ? origin : false),
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
