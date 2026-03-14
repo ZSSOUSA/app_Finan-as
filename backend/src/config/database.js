@@ -1,5 +1,11 @@
+const dns = require('dns');
 const { Pool } = require('pg');
 require('dotenv').config();
+
+// Evita ENETUNREACH no Render: força IPv4 ao conectar ao Supabase
+if (process.env.DATABASE_URL?.includes('supabase') || process.env.DB_HOST?.includes('supabase')) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const isSupabase = process.env.DB_HOST?.includes('supabase') || process.env.DATABASE_URL?.includes('supabase');
 
