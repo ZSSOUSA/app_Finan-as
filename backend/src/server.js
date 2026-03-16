@@ -12,13 +12,12 @@ const allowedOrigins = [
   'http://localhost:3000',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
-// Permite qualquer subdomínio .vercel.app (produção e previews)
+// Permite apenas origins explícitos + subdomínios .vercel.app (produção e previews)
 const isAllowedOrigin = (origin) => {
   if (!origin) return false;
   if (allowedOrigins.includes(origin)) return true;
   try {
     const u = new URL(origin);
-    if (u.hostname === 'localhost') return true;
     if (u.hostname.endsWith('.vercel.app')) return true;
   } catch (_) {}
   return false;
