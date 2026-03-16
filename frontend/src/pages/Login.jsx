@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState('login');
   const [loading, setLoading] = useState(false);
@@ -15,12 +15,25 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+  
     try {
-      await login(form.email, form.password);
-      toast.success('Bem-vindo de volta!');
+  
+      if (tab === 'login') {
+  
+        await login(form.email, form.password);
+        toast.success('Bem-vindo de volta!');
+  
+      } else {
+  
+        await register(form.name, form.email, form.password);
+        toast.success('Conta criada com sucesso!');
+  
+      }
+  
       navigate('/dashboard');
+  
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Erro ao fazer login');
+      toast.error(err.response?.data?.error || 'Erro na autenticação');
     } finally {
       setLoading(false);
     }

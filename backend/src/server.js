@@ -1,25 +1,34 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const routes = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ─── MIDDLEWARES ──────────────────────────────────────────────────────────────
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 200,                 // 200 reqs por IP/intervalo
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
-// Permite apenas origins explícitos + subdomínios .vercel.app (produção e previews)
+// Permite origins explícitos + subdomínios .vercel.app (produção e previews)
 const isAllowedOrigin = (origin) => {
-  if (!origin) return false;
+  if (!origin) return true; // permite ferramentas e health checks sem Origin
   if (allowedOrigins.includes(origin)) return true;
+
   try {
     const u = new URL(origin);
     if (u.hostname.endsWith('.vercel.app')) return true;
   } catch (_) {}
+
   return false;
 };
 app.use(cors({
@@ -28,6 +37,7 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization'],
 }));
+app.use('/api', apiLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
